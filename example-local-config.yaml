@@ -1,0 +1,8 @@
+server:
+  port: 46837
+db:
+  host: localhost
+  database: interviewer_db
+  port: 5432
+  user: interviewer_owner
+  password: ivown3210098

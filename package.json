@@ -1,0 +1,40 @@
+{
+  "name": "checklist-server",
+  "description": "server for checklists",
+  "version": "0.0.1",
+  "author": "Emilio Platzer <emilioplatzer@gmail>",
+  "license": "MIT",
+  "repository": "emilioplatzer/checklist-server",
+  "dependencies": {
+    "lodash": "^3.8.0",
+    "express": "^4.12.3",
+    "cookie-parser": "^1.3.4",
+    "body-parser": "^1.12.4",
+    "express-session": "^1.11.2",
+    "extension-serve-static": "^0.1.6",
+    "best-promise": ">=0.1.0",
+    "fs-promise": "~0.3.1", 
+    "jade": "^1.9.2",
+    "moment": "^2.10.3",
+    "connect-ensure-login": ">=0.1.1",
+    "passport": ">=0.2.1",
+    "passport-local": ">=1.0.0",
+    "pg-promise-strict": ">=0.0.11",
+    "read-yaml-promise": ">=1.0.2",
+    "connect-ensure-login": "^0.1.1"
+  },
+  "devDependencies": {
+    "multilang": ">=0.1.0",
+    "mocha": "~2.2.5",
+    "expect.js": ">=0.3.1"
+  },
+  "engines": {
+    "node": ">= 0.10.0"
+  },
+  "scripts": {
+    "test": "mocha --reporter spec --bail --check-leaks test/",
+    "test-ci": "istanbul cover node_modules/mocha/bin/_mocha --report lcovonly -- --reporter spec --check-leaks test/",
+    "test-cov": "istanbul cover node_modules/mocha/bin/_mocha -- --reporter dot --check-leaks test/",
+    "start": "node server/server.js"
+  }
+}
