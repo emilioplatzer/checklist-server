@@ -20,6 +20,7 @@ estructura.variables={
 }
 
 estructura.maxitems=70;
+estructura.maxPlanillasLateral=30;
 
 moduleTarget[moduleName]=estructura;
     

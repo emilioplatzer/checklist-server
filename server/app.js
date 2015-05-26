@@ -1,7 +1,8 @@
 "use strict";
 
-var F_FECHA_HORA='DD-MM-YYYY hh:mm:ss';
+var F_FECHA_HORA='DD/MM hh:mm:ss';
 
+var guardar={};
 var planillas=[];
 var planillas_orden=[];
 var planillas_momento=[];
@@ -9,11 +10,14 @@ traerDeLS();
 
 function indexarPlanilla(planilla){
     planillas_orden[planilla.orden]=planilla;
-    planillas_momento[planilla.momento]=planilla;
+    var idxMomento=planilla.momento+' i '+planilla.orden;
+    planillas_momento[idxMomento]=planilla;
 };
 
 function traerDeLS(){
-    planillas=JSON.parse(localStorage['ch.planillas']||'[]');
+    guardar=localStorage['ch.guardar'];
+    guardar=guardar?JSON.parse(guardar):{planillas:[]};
+    planillas=guardar.planillas;
     for(var i=0; i<planillas.length; i++){
         var planilla=planillas[i];
         indexarPlanilla(planilla);
@@ -31,7 +35,7 @@ function refrescarPlanillas(){
     button.textContent='nuevo';
     button.id='nuevo';
     button.onclick=function(){
-        mostrarPantallaIngreso();
+        mostrarPantallaIngreso(null,true);
     }
     div.appendChild(button);
     planillas_div.appendChild(div);
@@ -45,17 +49,50 @@ function refrescarPlanillas(){
     }
     div.appendChild(button);
     planillas_div.appendChild(div);
-    for(var i=0; i<planillas.length && i<estructura.maxPlanillasLateral; i++){
-        var planilla=planillas[i];
-        var div=document.createElement('div');
-        var button=document.createElement('button');
-        button.textContent=planilla.orden+' '+moment(planilla.ingresado).format(F_FECHA_HORA);
+    var div=document.createElement('div');
+    var button=document.createElement('button');
+    if("con boton demo"){
+        button.textContent='DEMO';
+        button.id='demo';
+        button.onclick=function(){
+            for(var i=5000; i<9999; i++){
+                if(!(i in planillas)){
+                    var planilla={orden:i, momento:moment().subtract(i,'seconds')};
+                    for(var nombre in estructura.variables){
+                        var def=estructura.variables[nombre];
+                        planilla[nombre]=nombre=='orden'?i:Math.floor(Math.random()*(Math.pow(10,def.ancho)));
+                    }
+                    planillas.push(planilla);
+                    indexarPlanilla(planilla);
+                }
+            }
+            refrescarPlanillas();
+        }
         div.appendChild(button);
         planillas_div.appendChild(div);
     }
+    item_cantidad.textContent=planillas.length+' planillas'; 
+    var momentos_planilla=Object.keys(planillas_momento);
+    momentos_planilla.sort();
+    momentos_planilla.reverse();
+    for(var i=0; i<momentos_planilla.length; i++){
+        var planilla=planillas_momento[momentos_planilla[i]];
+        if(i<estructura.maxPlanillasLateral){
+            var div=document.createElement('div');
+            var button=document.createElement('button');
+            button.textContent=planilla.orden+' '+moment(planilla.momento).format(F_FECHA_HORA);
+            button.onclick=(function(orden){
+                return function(){
+                    mostrarPantallaIngreso(orden,false);
+                };
+            })(planilla.orden);
+            div.appendChild(button);
+            planillas_div.appendChild(div);
+        }
+    }
 }
 
-function mostrarPantallaIngreso(numeroOrden){
+function mostrarPantallaIngreso(numeroOrden,doFocus){
     var nuevo=true;
     var vacio=true;
     var planilla={};
@@ -75,11 +112,21 @@ function mostrarPantallaIngreso(numeroOrden){
         buttonSave.textContent='grabar';
         buttonSave.id='grabar';
         buttonSave.onclick=function(){
-            for(var nombre in estructura.variables){
-                planilla[nombre]=referencias[nombre].textContent;
-            }
-            localStorage['ch.planillas']=JSON.stringify(planillas);
-            buttonSave.dataset.saved=true;
+            item_status.textContent='saving';
+            buttonSave.disabled=true;
+            setTimeout(function(){
+                for(var nombre in estructura.variables){
+                    planilla[nombre]=referencias[nombre].textContent;
+                }
+                localStorage['ch.guardar']=JSON.stringify(guardar);
+                buttonSave.dataset.saved=true;
+                item_status.textContent='ok';
+                buttonSave.enabled=true;
+                refrescarPlanillas();
+                setTimeout(function(){
+                    
+                },0);
+            },0);
         }
     }
     contenido.innerHTML='';
@@ -116,7 +163,7 @@ function mostrarPantallaIngreso(numeroOrden){
             var button=document.createElement('button');
             button.textContent='ingresar';
             button.onclick=function(){
-                mostrarPantallaIngreso(Number(referencias.orden.textContent));
+                mostrarPantallaIngreso(Number(referencias.orden.textContent),true);
             }
             cell.appendChild(button);
         }
@@ -129,7 +176,7 @@ function mostrarPantallaIngreso(numeroOrden){
         cell.appendChild(buttonSave);
     }
     contenido.appendChild(table);
-    if(primerEditable){
+    if(primerEditable && doFocus){
         primerEditable.focus();
     }
 }
