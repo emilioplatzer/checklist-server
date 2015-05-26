@@ -5,18 +5,18 @@
 var estructura={};
 
 estructura.variables={
-    orden   :{ tipo:'numerico' , esId: true},
-    fecha   :{ tipo:'fecha'    },
-    inicio  :{ tipo:'hora'     },
-    equipo  :{ tipo:'texto'    },
-    tecnico :{ tipo:'texto'    },
-    baterias:{ tipo:'numerico' },
-    iniciob :{ tipo:'hora'     , leyenda: 'inicio del reboot' },
-    finb    :{ tipo:'hora'     , leyenda: 'final del reboot'  },
-    lugarver:{ tipo:'numerico' , leyenda: 'ubicación de lista'},
-    lugarcie:{ tipo:'numerico' , leyenda: 'número para ciego' },
-    cantobs :{ tipo:'numerico' }, 
-    itemsobs:{ tipo:'texto'    }
+    orden   :{ tipo:'numerico' ,ancho: 4, esId: true},
+    fecha   :{ tipo:'fecha'    ,ancho: 5},
+    inicio  :{ tipo:'hora'     ,ancho: 7},
+    equipo  :{ tipo:'texto'    ,ancho:12},
+    tecnico :{ tipo:'texto'    ,ancho:12},
+    baterias:{ tipo:'numerico' ,ancho: 2},
+    iniciob :{ tipo:'hora'     ,ancho: 7, leyenda: 'inicio del reboot' },
+    finb    :{ tipo:'hora'     ,ancho: 7, leyenda: 'final del reboot'  },
+    lugarver:{ tipo:'numerico' ,ancho: 2, leyenda: 'ubicación de lista'},
+    lugarcie:{ tipo:'numerico' ,ancho: 2, leyenda: 'número para ciego' },
+    cantobs :{ tipo:'numerico' ,ancho: 2}, 
+    itemsobs:{ tipo:'texto'    ,ancho:12}
 }
 
 estructura.maxitems=70;

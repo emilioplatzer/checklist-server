@@ -32,7 +32,6 @@ function refrescarPlanillas(){
     button.id='nuevo';
     button.onclick=function(){
         mostrarPantallaIngreso();
-        document.getElementById('nueva_orden').focus();
     }
     div.appendChild(button);
     planillas_div.appendChild(div);
@@ -60,6 +59,7 @@ function mostrarPantallaIngreso(numeroOrden){
     var nuevo=true;
     var vacio=true;
     var planilla={};
+    var primerEditable=null;
     if(numeroOrden && !isNaN(numeroOrden)){
         vacio=false;
         var planilla=planillas_orden[numeroOrden];
@@ -94,8 +94,12 @@ function mostrarPantallaIngreso(numeroOrden){
             planilla[nombre]=null;
         }
         cell=fila.insertCell(-1);
-        cell.contentEditable=!!def.esId===vacio;
-        cell.dataset.varname=name;
+        var editable=!!def.esId===vacio
+        cell.contentEditable=editable;
+        if(editable && !primerEditable){
+            primerEditable=cell;
+        }
+        cell.dataset.varname=nombre;
         cell.textContent=planilla[nombre];
         cell.id='nueva_'+nombre;
         referencias[nombre]=cell;
@@ -104,6 +108,9 @@ function mostrarPantallaIngreso(numeroOrden){
         }
         cell.onkeydown=enter2tab;
         cell.className='campo';
+        if(def.ancho>6){
+            cell.colSpan=2;
+        }
         if(def.esId && vacio){
             cell=fila.insertCell(-1);
             var button=document.createElement('button');
@@ -117,10 +124,14 @@ function mostrarPantallaIngreso(numeroOrden){
     if(!vacio){
         var row=table.insertRow(-1);
         var cell=row.insertCell(-1);
+        cell.colSpan=2;
         var cell=row.insertCell(-1);
         cell.appendChild(buttonSave);
     }
     contenido.appendChild(table);
+    if(primerEditable){
+        primerEditable.focus();
+    }
 }
 
 window.addEventListener('load',function(){
