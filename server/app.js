@@ -16,6 +16,7 @@ function traerDeLS(){
     planillas=JSON.parse(localStorage['ch.planillas']||'[]');
     for(var i=0; i<planillas.length; i++){
         var planilla=planillas[i];
+        indexarPlanilla(planilla);
     }
 }
 
@@ -32,6 +33,16 @@ function refrescarPlanillas(){
     button.onclick=function(){
         mostrarPantallaIngreso();
         document.getElementById('nueva_orden').focus();
+    }
+    div.appendChild(button);
+    planillas_div.appendChild(div);
+    var div=document.createElement('div');
+    var button=document.createElement('button');
+    button.textContent='dump';
+    button.id='dump';
+    button.onclick=function(){
+        contenido.innerHTML='';
+        contenido.textContent=JSON.stringify(planillas);
     }
     div.appendChild(button);
     planillas_div.appendChild(div);
@@ -64,6 +75,10 @@ function mostrarPantallaIngreso(numeroOrden){
         buttonSave.textContent='grabar';
         buttonSave.id='grabar';
         buttonSave.onclick=function(){
+            for(var nombre in estructura.variables){
+                planilla[nombre]=referencias[nombre].textContent;
+            }
+            localStorage['ch.planillas']=JSON.stringify(planillas);
             buttonSave.dataset.saved=true;
         }
     }
@@ -80,12 +95,14 @@ function mostrarPantallaIngreso(numeroOrden){
         }
         cell=fila.insertCell(-1);
         cell.contentEditable=!!def.esId===vacio;
-        cell.onblur=function(){
-            buttonSave.dataset.saved=false;
-        }
+        cell.dataset.varname=name;
         cell.textContent=planilla[nombre];
         cell.id='nueva_'+nombre;
         referencias[nombre]=cell;
+        cell.onblur=function(){
+            buttonSave.dataset.saved=false;
+        }
+        cell.onkeydown=enter2tab;
         cell.className='campo';
         if(def.esId && vacio){
             cell=fila.insertCell(-1);
@@ -109,3 +126,11 @@ function mostrarPantallaIngreso(numeroOrden){
 window.addEventListener('load',function(){
     refrescarPlanillas();
 });
+
+function enter2tab(e) {
+    if (e.which == 13) {
+        var row=e.target.parentElement;
+        row.parentElement.rows[row.rowIndex+1].cells[e.target.cellIndex].focus();
+        e.preventDefault();
+    }
+}
