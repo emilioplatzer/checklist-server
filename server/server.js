@@ -60,13 +60,16 @@ function serveErr(req,res,next){
     }
 }
 
-app.get('/server.js',function(req,res){
-    var text='Cannot GET '+req.path;
-    res.writeHead(404, {
+function sendError(res,number,text){
+    res.writeHead(number, {
         'Content-Length': text.length,
         'Content-Type': 'text/html; charset=utf-8'
     });
     res.end(text);
+}
+
+app.get('/server.js',function(req,res){
+    sendError(res,404,'Cannot GET '+req.path);
 });
 
 app.post('/login',
@@ -134,6 +137,8 @@ function serveJade(pathToFile,anyFile){
     }
 }
 
+var actualConfig;
+
 var mime = extensionServeStatic.mime;
 
 var validExts=[
@@ -152,6 +157,36 @@ app.use('/unlogged',extensionServeStatic('./server/unlogged', {
     staticExtensions:validExts
 }))
 
+app.post('/syncro/put',function(req,res){
+    try{
+        var user=req.session.passport.user;
+        if(!user){
+            console.log("NO-LOGUEADO");
+            sendError(res,403,'unauth');
+        }
+        console.log("LOGUEADO");
+        Promise.resolve().then(function(){
+            return pg.connect(actualConfig.db);
+        }).then(function(client){
+            return client.query('BEGIN TRANSACTION').execute();
+        }).then(function(result){
+            var planillas=JSON.parse(req.body.planillas);
+            console.log('grabar',planillas);
+            return Promise.all(planillas.map(function(planilla){
+                return result.client.query('INSERT INTO comun.planillas (orden) VALUES ($1)',[planilla.orden]).execute();
+            }));
+        }).then(function(results){
+            console.log('result planillas',results);
+            return results.length?results[0].client.query('COMMIT'):null;
+        }).then(function(){
+            res.end('gracias');
+        }).catch(serveErr(req,res));
+    }catch(err){
+        console.log("ERROR SYNCRO",err);
+        sendError(res,403,'problem '+err.message);
+    }
+});
+
 app.use(ensureLoggedIn('/login'));
 
 app.use('/',serveJade('server',true));
@@ -167,8 +202,6 @@ app.use('/',extensionServeStatic('./server', {
     extensions:[''], 
     staticExtensions:validExts
 }))
-
-var actualConfig;
 
 function logAndThrow(err){
     console.log('ERROR',err);
