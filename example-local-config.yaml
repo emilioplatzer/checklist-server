@@ -1,8 +1,8 @@
 server:
-  port: 46837
+  port: 62432
 db:
   host: localhost
-  database: interviewer_db
+  database: nuestros_clsdb
   port: 5432
-  user: interviewer_owner
-  password: ivown3210098
+  user: nuestros_clsow
+  password: ivown3210098.

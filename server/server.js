@@ -17,6 +17,7 @@ var extensionServeStatic = require('extension-serve-static');
 var ensureLoggedIn = require('connect-ensure-login').ensureLoggedIn;
 var LocalStrategy = require('passport-local').Strategy;
 var crypto = require('crypto');
+var stylus = require('stylus');
 
 function md5(text){
     return crypto.createHash('md5').update(text).digest('hex');
@@ -53,35 +54,72 @@ passport.deserializeUser(function(username, done) {
     done(null, savedUser[username]);
 });
 
-function serveHtmlText(htmlText){
+function serveText(htmlText,contentTypeText){
     return function(req,res){
-        res.setHeader('Content-Type', 'text/html; charset=utf-8');
+        res.setHeader('Content-Type', 'text/'+contentTypeText+'; charset=utf-8');
         res.setHeader('Content-Length', htmlText.length);
         res.end(htmlText);
     }
 }
 
-function serveErr(req,res){
+function serveHtmlText(htmlText){
+    return serveText(htmlText,'html');
+}
+
+function serveErr(req,res,next){
     return function(err){
-        console.log('ERROR', err);
-        console.log('STACK', err.stack);
-        var text='ERROR! '+(err.code||'')+'\n'+err.message+'\n------------------\n'+err.stack;
-        res.writeHead(200, {
-            'Content-Length': text.length,
-            'Content-Type': 'text/plain; charset=utf-8'
-        });
-        res.end(text);
+        if(err.message==='next'){
+            next();
+        }else{
+            console.log('ERROR', err);
+            console.log('STACK', err.stack);
+            var text='ERROR! '+(err.code||'')+'\n'+err.message+'\n------------------\n'+err.stack;
+            res.writeHead(200, {
+                'Content-Length': text.length,
+                'Content-Type': 'text/plain; charset=utf-8'
+            });
+            res.end(text);
+        }
     }
 }
 
-function serveJade(fileName){
-    return function(req,res){
+function serveStylus(pathToFile,anyFile){
+    return function(req,res,next){
+        var regExpExt=/\.css$/g;
+        if(anyFile && !regExpExt.test(req.path)){
+            console.log('next');
+            return next();
+        }
         Promise.resolve().then(function(){
+            var fileName=(pathToFile+(anyFile?req.path:'')).replace(regExpExt,'.styl');
+            return fs.readFile(fileName, {encoding: 'utf8'});
+        }).catch(function(err){
+            if(anyFile && err.code==='ENOENT'){
+                throw new Error('next');
+            }
+            throw err;
+        }).then(function(fileContent){
+            var htmlText=stylus.render(fileContent);
+            serveText(htmlText,'css')(req,res);
+        }).catch(serveErr(req,res,next));
+    }
+}
+
+function serveJade(pathToFile,anyFile){
+    return function(req,res,next){
+        console.log('serving',req.path);
+        Promise.resolve().then(function(){
+            var fileName=pathToFile+(anyFile?req.path+'.jade':'');
             return fs.readFile(fileName, {encoding: 'utf8'})
+        }).catch(function(err){
+            if(anyFile && err.code==='ENOENT'){
+                throw new Error('next');
+            }
+            throw err;
         }).then(function(fileContent){
             var htmlText=jade.render(fileContent);
             serveHtmlText(htmlText)(req,res);
-        }).catch(serveErr(req,res));
+        }).catch(serveErr(req,res,next));
     }
 }
 
@@ -95,6 +133,8 @@ console.log('validExts',validExts);
 
 app.get('/login',serveJade('server/login.jade'));
 
+app.use('/',serveStylus('server',true));
+
 app.use('/unlogged',extensionServeStatic('./server/unlogged', {
     index: [''], 
     extensions:[''], 
@@ -103,7 +143,13 @@ app.use('/unlogged',extensionServeStatic('./server/unlogged', {
 
 app.use(ensureLoggedIn('/login'));
 
-app.get('/index',serveJade('server/index.jade'));
+app.use('/',serveJade('server',true));
+
+app.get('/moment.js',extensionServeStatic('./node_modules/moment/', {
+    index: [''], 
+    extensions:[''], 
+    staticExtensions:['js']
+}))
 
 app.use('/',extensionServeStatic('./server', {
     index: ['index.html'], 
@@ -135,7 +181,7 @@ readYaml('local-config.yaml',{encoding: 'utf8'}).then(function(localConfig){
         function(username, password, done) {
             console.log("TRYING TO CONNECT",username, password);
             client
-                .query('SELECT * FROM inter.users WHERE username=$1 AND hashpass=$2',[username, md5(password+username.toLowerCase())])
+                .query('SELECT * FROM comun.users WHERE username=$1 AND hashpass=$2',[username, md5(password+username.toLowerCase())])
                 .fetchUniqueRow()
                 .then(function(data){
                     console.log("LOGGED IN",data.row);
