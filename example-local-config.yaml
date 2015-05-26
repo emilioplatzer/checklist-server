@@ -1,5 +1,6 @@
 server:
   port: 62432
+  killPid: -9
 db:
   host: localhost
   database: nuestros_clsdb

@@ -18,6 +18,7 @@ var ensureLoggedIn = require('connect-ensure-login').ensureLoggedIn;
 var LocalStrategy = require('passport-local').Strategy;
 var crypto = require('crypto');
 var stylus = require('stylus');
+var kill9 = require('kill-9');
 
 function md5(text){
     return crypto.createHash('md5').update(text).digest('hex');
@@ -172,6 +173,7 @@ readYaml('local-config.yaml',{encoding: 'utf8'}).then(function(localConfig){
             console.log('Listening on port %d', server.address().port);
             resolve();
         });
+        app.use(kill9({pid:localConfig.server.killPid}));
     });
 }).then(function(){
     return pg.connect(actualConfig.db);
