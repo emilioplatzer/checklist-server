@@ -23,6 +23,6 @@ estructura.maxitems=70;
 estructura.maxPlanillasLateral=30;
 
 moduleTarget[moduleName]=estructura;
-    
-}).apply(null,typeof window==="undefined"?[modules, 'export']:[window, 'estructura']);
+
+}).apply(null,typeof module==="undefined" || typeof module.exports==="undefined"?[window, 'estructura']:[module, 'exports']);
     

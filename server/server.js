@@ -19,6 +19,7 @@ var LocalStrategy = require('passport-local').Strategy;
 var crypto = require('crypto');
 var stylus = require('stylus');
 var kill9 = require('kill-9');
+var estructura = require('./estructura.js');
 
 function md5(text){
     return crypto.createHash('md5').update(text).digest('hex');
@@ -29,31 +30,6 @@ app.use(bodyParser.urlencoded({extended:true}));
 app.use(session({ secret: 'keyboard cat', resave:false, saveUninitialized:true }));
 app.use(passport.initialize());
 app.use(passport.session({ secret: 'keyboard cat' }));
-
-app.post('/login',
-  passport.authenticate('local', { successRedirect: '/index',
-                                   failureRedirect: '/login',
-                                   failureFlash: true })
-);
-
-app.use(function(req,res,next){
-    console.log('USE cookie',req.cookies)
-    console.log('session',req.session,req.query);
-    next();
-});
-
-var savedUser={};
-
-passport.serializeUser(function(user, done) {
-    savedUser[user.username] = user;
-    console.log('SERIALIZE',savedUser,user);
-    done(null, user.username);
-});
-
-passport.deserializeUser(function(username, done) {
-    console.log('deSERIALIZE',savedUser,username);
-    done(null, savedUser[username]);
-});
 
 function serveText(htmlText,contentTypeText){
     return function(req,res){
@@ -83,6 +59,40 @@ function serveErr(req,res,next){
         }
     }
 }
+
+app.get('/server.js',function(req,res){
+    var text='Cannot GET '+req.path;
+    res.writeHead(404, {
+        'Content-Length': text.length,
+        'Content-Type': 'text/html; charset=utf-8'
+    });
+    res.end(text);
+});
+
+app.post('/login',
+  passport.authenticate('local', { successRedirect: '/index',
+                                   failureRedirect: '/login',
+                                   failureFlash: true })
+);
+
+app.use(function(req,res,next){
+    console.log('USE cookie',req.cookies)
+    console.log('session',req.session,req.query);
+    next();
+});
+
+var savedUser={};
+
+passport.serializeUser(function(user, done) {
+    savedUser[user.username] = user;
+    console.log('SERIALIZE',savedUser,user);
+    done(null, user.username);
+});
+
+passport.deserializeUser(function(username, done) {
+    console.log('deSERIALIZE',savedUser,username);
+    done(null, savedUser[username]);
+});
 
 function serveStylus(pathToFile,anyFile){
     return function(req,res,next){

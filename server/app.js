@@ -81,6 +81,7 @@ function refrescarPlanillas(){
             var div=document.createElement('div');
             var button=document.createElement('button');
             button.textContent=planilla.orden+' '+moment(planilla.momento).format(F_FECHA_HORA);
+            button.dataset.sucia = !!planilla.sucia;
             button.onclick=(function(orden){
                 return function(){
                     mostrarPantallaIngreso(orden,false);
@@ -90,6 +91,52 @@ function refrescarPlanillas(){
             planillas_div.appendChild(div);
         }
     }
+}
+
+item_status.onclick=sincronizarConElServidor;
+
+function ajaxSimple(params){
+    var ajax = new XMLHttpRequest();
+    params.onerror=params.onerror||function(err){ alert(err); };
+    ajax.open(params.method||'get',params.url);
+    ajax.onload=function(e){
+        if(ajax.status!=200){
+            params.onerror(new Error(ajax.status+' '+ajax.responseText));
+        }else{
+            try{
+                params.onload.call(null,ajax.responseText);
+            }catch(err){
+                params.onerror(err);
+            }
+        }
+    }
+    ajax.onerror=params.onerror;
+    ajax.setRequestHeader('Content-Type','application/x-www-form-urlencoded');
+    var enviar=Object.keys(params.data).map(function(key){
+        return key+'='+encodeURIComponent(params.data[key]);
+    }).join('&');
+    ajax.send(enviar);
+}
+
+function sincronizarConElServidor(){
+    item_status.textContent='sincronizando...';
+    setTimeout(function(){
+        var planillasAEnviar=planillas.filter(function(planilla){
+            return planilla.sucia;
+        });
+        ajaxSimple({
+            method:'POST',
+            url:'/syncro/put',
+            data:{planillas:JSON.stringify(planillasAEnviar)},
+            onload:function(data){
+                item_status.textContent='actualizado '+data;
+            },
+            onerror:function(err){
+                item_status.textContent='error';
+                item_status.title=err+'';
+            },
+        });
+    },0);
 }
 
 function mostrarPantallaIngreso(numeroOrden,doFocus){
@@ -112,6 +159,7 @@ function mostrarPantallaIngreso(numeroOrden,doFocus){
         buttonSave.textContent='grabar';
         buttonSave.id='grabar';
         buttonSave.onclick=function(){
+            planilla.sucia=true;
             item_status.textContent='saving';
             buttonSave.disabled=true;
             setTimeout(function(){
@@ -123,8 +171,9 @@ function mostrarPantallaIngreso(numeroOrden,doFocus){
                 item_status.textContent='ok';
                 buttonSave.enabled=true;
                 refrescarPlanillas();
+                item_status.textContent='sincronizando';
                 setTimeout(function(){
-                    
+                    sincronizarConElServidor();
                 },0);
             },0);
         }
