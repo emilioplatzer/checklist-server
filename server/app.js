@@ -124,7 +124,7 @@ function sincronizarConElServidor(){
         });
         ajaxSimple({
             method:'POST',
-            url:'/syncro/put',
+            url:'./syncro/put',
             data:{planillas:JSON.stringify(planillasAEnviar)},
             onload:function(data){
                 item_status.textContent='actualizado '+data;
