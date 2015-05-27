@@ -1,4 +1,6 @@
 create user nuestros_clsow password 'ivown3210098';
+ALTER USER nuestros_clsow set search_path=comun, public;
+
 create database nuestros_clsdb with owner nuestros_clsow;
 \c nuestros_clsdb
 create schema comun authorization nuestros_clsow;

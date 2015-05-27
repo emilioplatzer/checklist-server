@@ -1,5 +1,5 @@
 doctype html
-html
+html(manifest="manifest.manifest")
   head
     link(href="app.css", rel="stylesheet", type="text/css")
   body
@@ -7,12 +7,15 @@ html
     table
       tr
         td#lateral
+          #item_sincronizar
           #item_cantidad.item
-          #item_status.item
           #item_m_upload.item
           #item_m_download.item
           #planillas_div
         td#contenido
+      tr
+        td(colspan=5)
+          #item_status.item
     script(src="moment.js")
     script(src="estructura.js")
     script(src="app.js")

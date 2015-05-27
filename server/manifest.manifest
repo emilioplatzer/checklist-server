@@ -1,0 +1,11 @@
+CACHE MANIFEST
+# v 1.0000
+
+v1
+app.js
+estructura.js
+moment.js
+app.css
+
+FALLBACK:
+/syncro/put /offline.txt

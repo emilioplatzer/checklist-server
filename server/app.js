@@ -51,7 +51,7 @@ function refrescarPlanillas(){
     planillas_div.appendChild(div);
     var div=document.createElement('div');
     var button=document.createElement('button');
-    if("con boton demo"){
+    if(!"con boton demo"){
         button.textContent='DEMO';
         button.id='demo';
         button.onclick=function(){
@@ -93,8 +93,6 @@ function refrescarPlanillas(){
     }
 }
 
-item_status.onclick=sincronizarConElServidor;
-
 function ajaxSimple(params){
     var ajax = new XMLHttpRequest();
     params.onerror=params.onerror||function(err){ alert(err); };
@@ -130,6 +128,10 @@ function sincronizarConElServidor(){
             data:{planillas:JSON.stringify(planillasAEnviar)},
             onload:function(data){
                 item_status.textContent='actualizado '+data;
+                planillasAEnviar.forEach(function(planilla){
+                    planilla.sucia=false;
+                });
+                refrescarPlanillas();
             },
             onerror:function(err){
                 item_status.textContent='error';
@@ -232,6 +234,11 @@ function mostrarPantallaIngreso(numeroOrden,doFocus){
 
 window.addEventListener('load',function(){
     refrescarPlanillas();
+    var button=document.createElement('button');
+    button.id='sincronizar';
+    button.textContent='sincronizar';
+    button.onclick=sincronizarConElServidor;
+    item_sincronizar.appendChild(button);
 });
 
 function enter2tab(e) {

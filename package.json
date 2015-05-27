@@ -22,7 +22,7 @@
     
     "extension-serve-static": "^0.1.6",
     "best-promise": ">=0.1.2",
-    "pg-promise-strict": ">=0.0.12",
+    "pg-promise-strict": ">=0.1.1",
     "kill-9": ">=0.2.3"
   },
   "devDependencies": {
