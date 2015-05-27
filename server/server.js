@@ -193,7 +193,7 @@ app.post('/syncro/put',function(req,res){
     }).catch(serveErr(req,res));
 });
 
-app.use(ensureLoggedIn('/login'));
+app.use(ensureLoggedIn('./login'));
 
 app.use('/',serveJade('server',true));
 
