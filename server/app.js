@@ -202,7 +202,7 @@ function mostrarPantallaIngreso(numeroOrden,doFocus){
         cell.id='nueva_'+nombre;
         referencias[nombre]=cell;
         cell.onblur=function(){
-            buttonSave.dataset.saved=false;
+            if(buttonSave) buttonSave.dataset.saved=false;
         }
         cell.onkeydown=enter2tab;
         cell.className='campo';
