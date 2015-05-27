@@ -16,7 +16,8 @@ estructura.variables={
     lugarver:{ tipo:'numerico' ,ancho: 2, leyenda: 'ubicación de lista'},
     lugarcie:{ tipo:'numerico' ,ancho: 2, leyenda: 'número para ciego' },
     cantobs :{ tipo:'numerico' ,ancho: 2}, 
-    itemsobs:{ tipo:'texto'    ,ancho:12}
+    itemsobs:{ tipo:'texto'    ,ancho:12},
+    obstxt  :{ tipo:'texto'    ,ancho:12, leyenda: 'observaciones'     }
 }
 
 estructura.maxitems=70;

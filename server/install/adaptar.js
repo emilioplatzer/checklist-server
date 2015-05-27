@@ -11,11 +11,12 @@ readYaml('local-config.yaml',{encoding: 'utf8'}).then(function(localConfig){
     return pg.connect(actualConfig.db);
 }).then(function(clientFromPool){
     client = clientFromPool;
-    return fs.readFile('./server/install/create-db.sql',{encoding:'utf8'});
+    return fs.readFile('./server/install/'+process.argv[2],{encoding:'utf8'});
 }).then(function(content){
     var p=Promise.resolve('ARRANCAR');
-    var sentencias=content.split('\c nuestros_clsdb')[1].split(';');
+    var sentencias=content.split(';');
     console.log('content',sentencias);
+    var saltear=Number(process.argv[3])||0;
     while(sentencias.length){
         var sentencia=sentencias.shift();
         (function(sentencia){
@@ -29,6 +30,7 @@ readYaml('local-config.yaml',{encoding: 'utf8'}).then(function(localConfig){
     return p;
 }).then(function(content){
     console.log('ok');
+    process.exit();
 }).catch(function(err){
     console.log('ERROR',err);
     console.log('STACK',err.stack);

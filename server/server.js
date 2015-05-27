@@ -234,6 +234,12 @@ readYaml('local-config.yaml',{encoding: 'utf8'}).then(function(localConfig){
                 .fetchUniqueRow()
                 .then(function(data){
                     done(null, data.row);
+                }).catch(function(err){
+                    if(err.code==='54011!'){
+                        done('Error en usuario o clave');
+                    }else{
+                        throw err;
+                    }
                 }).catch(logAndThrow).catch(done);
         }
     ));
