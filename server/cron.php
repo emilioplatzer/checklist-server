@@ -1,7 +1,7 @@
 <?php
 
 $host = 'nuestroservidor.com.ar';
-$port = '23726';
+$port = '62432';
 $cron = true; // true; // Set $cron = false to Stop cron
 
 if(@$_SERVER['SERVER_PORT'] > 1){
@@ -12,7 +12,7 @@ if($cron == true){
     $checkconn = @fsockopen($host, $port, $errno, $errstr, 5);
     if(empty($checkconn)){
         echo "Lanzar, no esta";
-        exec('export HOME=/home/nuestros/programas/graficador2; cd /home/nuestros/programas/graficador2; /home/nuestros/nodejs-g/bin/npm start --production >> /home/nuestros/logs/graficador2.log 2>&1 &', $out, $ret);
+        exec('export HOME=/home/nuestros/programas/checklist-server; cd /home/nuestros/programas/checklist-server; /home/nuestros/nodejs-g/bin/npm start --production >> /home/nuestros/logs/checklist-server.log 2>&1 &', $out, $ret);
     }else{
         echo "Ya esta andando";
     }
