@@ -8,4 +8,4 @@ moment.js
 app.css
 
 FALLBACK:
-/syncro/put /offline.txt
+./syncro/put offline.txt
