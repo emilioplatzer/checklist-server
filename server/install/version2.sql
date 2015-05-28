@@ -8,3 +8,14 @@ insert into comun.users (username, hashpass) values
 
 alter table comun.planillas add column obstxt text;
 
+grant all on database nuestros_clsdb to nuestros;
+grant usage on schema comun to nuestros;
+grant all on comun.users to nuestros;
+grant all on comun.planillas to nuestros;
+
+create table parametros(
+  parametro text primary key,
+  valor text
+);
+
+insert into parametros(parametro,valor) values('version_db','1.00');
