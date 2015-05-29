@@ -156,7 +156,7 @@ app.use('/unlogged',extensionServeStatic('./server/unlogged', {
 app.post('/syncro/put',function(req,res){
     var user=req.session.passport.user;
     if(!user){
-        sendError(res,403,'unauth');
+        sendError(res,401,'unauth');
         return ;
     }
     var client;
@@ -190,6 +190,8 @@ app.post('/syncro/put',function(req,res){
         console.log('err.stack',err.stack);
         client.query('ROLLBACK').execute();
         throw err;
+    }).then(function(){
+        client.done();
     }).catch(serveErr(req,res));
 });
 
@@ -217,6 +219,7 @@ function logAndThrow(err){
 
 readYaml('local-config.yaml',{encoding: 'utf8'}).then(function(localConfig){
     actualConfig=localConfig;
+    console.log('config',localConfig);
     return new Promise(function(resolve, reject){
         var server=app.listen(localConfig.server.port, function(event) {
             console.log('Listening on port %d', server.address().port);
@@ -247,3 +250,5 @@ readYaml('local-config.yaml',{encoding: 'utf8'}).then(function(localConfig){
     console.log('ERROR',err);
     console.log('STACK',err.stack);
 });
+
+module.exports=app;
